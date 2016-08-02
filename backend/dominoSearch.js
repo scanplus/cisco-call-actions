@@ -2,8 +2,20 @@ var rp = require('request-promise');
 
 function searchForPhoneNumber(phoneNumber, callback) {
 
-  var dominoSearchHost = 'http://ln01app.scanplus.local';
-  var dominoSearchURL = dominoSearchHost + '/scanplus/elwis/apps/elwis_sales_d.nsf/api/data/collections/unid/DC1BD152E06692A2C12571C500409560';
+  var dominoSearchHost = process.env.DOMINO_SEARCH_HOST;
+  if (typeof dominoSearchHost != 'string' || dominoSearchHost.trim().length == 0) {
+    var err = new Error('DOMINO_SEARCH_HOST is not set');
+    callback(err, null);
+    return;
+  }
+  var dominoSearchURL = process.env.DOMINO_SEARCH_URL;
+  if (typeof dominoSearchURL != 'string' && dominoSearchURL.trim().length == 0) {
+    var err = new Error('DOMINO_SEARCH_URL is not set');
+    callback(err, null);
+    return;
+  }
+
+  dominoSearchURL = dominoSearchHost + dominoSearchURL;
 
   var dominoReqOptions = {
     uri: dominoSearchURL,
@@ -29,12 +41,15 @@ function searchForPhoneNumber(phoneNumber, callback) {
         } else {
           var err = new Error('Unkown AddressType: ' + result.AddressType);
           callback(err, null);
+	  return;
 	}
         callback(null, resultName);
+	return;
       });
     } else {
       var err = new Error('Too many results found');
       callback(err, null);
+      return;
     }
   });
 }
