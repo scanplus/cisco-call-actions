@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Phone Number Searcher</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Search for phone numbers in Sales</h1>
+    <form method="get" action="/search" enctype="multipart/form-data">
+      <input name="phone" type="text" id="phone" value="<% if(typeof res != 'undefined' && res) { %><%= phone %><% } %>" />
+      <input type="submit" value="Suchen" />
+    </form>
+    <% if(typeof res != 'undefined' && res) { %>
+    <div>Found one match: <%= res %></div>
+    <% } %>
+  </body>
+</html>
