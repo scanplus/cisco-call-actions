@@ -16,11 +16,17 @@ router.post('/', function(req, res) {
   ciscoAttributes = Array.from(ciscoAttributes);
   var phoneNumber = '';
   ciscoAttributes.forEach(function(attr) {
-    console.log(attr.AttributeId + ' has value -> ' + attr.AttributeValue);
     if (attr.AttributeId == 'urn:Cisco:uc:1.0:callingnumber') {
-      phoneNumber = attr.AttributeValue;
+      phoneNumber = attr.AttributeValue.toString();
     }
   }); 
+ 
+  res.header('Content-Type', 'application/xml');
+
+  if (phoneNumber.length < 4 ) {
+    res.render('cisco-res-noop');
+    return;
+  }
 
   console.log('Searching for ' + phoneNumber);
   search(phoneNumber, function(err, name) {
