@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function(req, res, next) {
+app.use('/cisco', function(req, res, next) {
   req.rawBody = '';
   req.setEncoding('utf8');
 
