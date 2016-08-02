@@ -23,7 +23,7 @@ router.post('/', function(req, res) {
  
   res.header('Content-Type', 'application/xml');
 
-  if (phoneNumber.length < 4 ) {
+  if (phoneNumber.length < 5 ) {
     res.render('cisco-res-noop');
     return;
   }
