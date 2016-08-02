@@ -7,11 +7,11 @@
       <Obligation FulfillOn="Permit" ObligationId="urn:cisco:xacml:policy-attribute">
         <AttributeAssignment AttributeId="Policy:simplecontinue">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
-            <cixml ver="1.0">
-              <continue>
-                <modify callingname="<%= res %>" />
-              </continue>
-            </cixml>
+            &lt;cixml ver="1.0"&gt;
+              &lt;continue&gt;
+                &lt;modify callingname="<%= res %>" /&gt;
+              &lt;/continue&gt;
+            &lt;/cixml&gt;
           </AttributeValue>
         </AttributeAssignment>
       </Obligation>
