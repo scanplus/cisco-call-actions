@@ -45,12 +45,18 @@ function searchForPhoneNumber(phoneNumber, callback) {
 	}
         callback(null, resultName);
 	return;
+      }).catch(function (err) {
+	callback(err, null);
+	return;
       });
     } else {
       var err = new Error('Too many results found');
       callback(err, null);
       return;
     }
+  }).catch(function (err) {
+    callback(err, null);
+    return;
   });
 }
 
