@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var xmlparser = require('express-xml-bodyparser');
 
 var indexRoute = require('./routes/index');
 var ciscoCallActions = require('./routes/cisco-call-actions');
@@ -16,23 +17,11 @@ app.set('view engine', 'ejs');
 app.set('trust proxy', true)
 
 app.use(logger('short'));
+app.use(xmlparser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/cisco', function(req, res, next) {
-  req.rawBody = '';
-  req.setEncoding('utf8');
-
-  req.on('data', function(chunk) { 
-    req.rawBody += chunk;
-  });
-
-  req.on('end', function() {
-    next();
-  });
-});
 
 app.use('/', indexRoute);
 app.use('/cisco', ciscoCallActions);

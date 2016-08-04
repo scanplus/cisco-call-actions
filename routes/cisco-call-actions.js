@@ -8,16 +8,12 @@ router.head('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-
-  var parser = require('xml2json');
-  var ciscoRequest = parser.toJson(req.rawBody);
-  ciscoAttributes = JSON.parse(ciscoRequest).Request.Subject.Attribute;
- 
-  ciscoAttributes = Array.from(ciscoAttributes);
+  
+  ciscoAttributes = req.body.request.subject[0].attribute;
   var phoneNumber = '';
   ciscoAttributes.forEach(function(attr) {
-    if (attr.AttributeId == 'urn:Cisco:uc:1.0:callingnumber') {
-      phoneNumber = attr.AttributeValue.toString();
+    if ( attr.$.AttributeId == 'urn:Cisco:uc:1.0:callingnumber') {
+      phoneNumber = attr.attributevalue[0].toString();
     }
   }); 
  
