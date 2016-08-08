@@ -1,4 +1,18 @@
 var rp = require('request-promise');
+var _ = require('lodash');
+
+function buildDisplayName(addressDoc) {
+  var firstname = _.trim(addressDoc.Firstname);
+  var lastName = _.trim(addressDoc.Lastname);
+  var company = _.trim(addressDoc.Company);
+
+  var displayName = firstname + ' ' + lastName;
+  if (!_.isEmpty(company)) {
+    displayName = displayName + ' (' + company + ')';
+  }
+  return _.trim(displayName);
+}
+
 
 function searchForPhoneNumber(phoneNumber, callback) {
 
@@ -35,7 +49,7 @@ function searchForPhoneNumber(phoneNumber, callback) {
       var resultName = 'Unbekannt';
       rp({uri: dominoSearchHost + response[0]['@link'].href, json: true}).then(function (result) {
         if (result.AddressType == '1') {
-          resultName = result.Firstname + ' ' + result.Lastname;
+          resultName = buildDisplayName(result);
         } else if (result.AddressType == '2') {
           resultName = result.Company;
         } else {
