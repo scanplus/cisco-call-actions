@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var xmlparser = require('express-xml-bodyparser');
 
 var indexRoute = require('./routes/index');
+var healthRoute = require('./routes/health');
 var ciscoCallActions = require('./routes/cisco-call-actions');
 
 var app = express();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRoute);
+app.use('/health', healthRoute);
 app.use('/cisco', ciscoCallActions);
 
 // catch 404 and forward to error handler
