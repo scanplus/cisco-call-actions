@@ -13,6 +13,23 @@ function buildDisplayName(addressDoc) {
   return _.trim(displayName);
 }
 
+function addAuthIfPresent(reqOptions) {
+  var dominoUser = '';
+  if (typeof process.env.DOMINO_USER == 'string') {
+    dominoUser = _.trim(new Buffer(process.env.DOMINO_USER, 'base64').toString());
+  }
+  var dominoPass = '';
+  if (typeof process.env.DOMINO_PASS == 'string') {
+    dominoPass = _.trim(new Buffer(process.env.DOMINO_PASS, 'base64').toString());
+  }
+  if (!_.isEmpty(dominoUser) && !_.isEmpty(dominoPass)) {
+    reqOptions.auth = {
+      user: dominoUser,
+      pass: dominoPass
+    }
+  }
+  return reqOptions;
+}
 
 function searchForPhoneNumber(phoneNumber, callback) {
 
@@ -33,21 +50,31 @@ function searchForPhoneNumber(phoneNumber, callback) {
 
   var dominoReqOptions = {
     uri: dominoSearchURL,
+    resolveWithFullResponse: true,
     qs: {
       search: phoneNumber
     },
     json: true
   };
 
+  addAuthIfPresent(dominoReqOptions);
+
   rp(dominoReqOptions).then(function (response) {
-    console.log('Found ' + response.length + ' documents');
-    if (response.length == 0) {
+    if (response.headers['content-type'] != 'application/json') {
+      var err = new Error('No JSON response received');
+      callback(err, null);
+      return;
+    }
+    var searchResult = response.body;
+    console.log('Found ' + searchResult.length + ' documents');
+
+    if (searchResult.length == 0) {
       var err = new Error('No results found');
       callback(err, null);
-    } else if (response.length == 1) {
+    } else if (searchResult.length == 1) {
       // Load resulting document
       var resultName = 'Unbekannt';
-      rp({uri: dominoSearchHost + response[0]['@link'].href, json: true}).then(function (result) {
+      rp(addAuthIfPresent({uri: dominoSearchHost + searchResult[0]['@link'].href, json: true})).then(function (result) {
         if (result.AddressType == '1') {
           resultName = buildDisplayName(result);
         } else if (result.AddressType == '2') {

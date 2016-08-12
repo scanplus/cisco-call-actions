@@ -9,6 +9,11 @@ router.get('/', function(req, res, next) {
   if( typeof phoneNumber != 'undefined' && phoneNumber.trim() != '') {
     console.log('Searching for ' + phoneNumber);
     search(phoneNumber, function(err, name) {
+      if (err) {
+        console.log(err);
+        res.render('index', { res: 'Error: ' + err, phone: phoneNumber });
+        return;
+      }
       console.log('Found: ' + name);
       res.render('index', { res: name, phone: phoneNumber });
     });
