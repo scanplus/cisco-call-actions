@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var search = require('../backend/dominoSearch.js');
+var mongoose = require('mongoose');
+var _ = require('lodash');
 
 /* Reply to status check requests. */
 router.head('/', function(req, res) {
@@ -11,11 +13,55 @@ router.post('/', function(req, res) {
   
   ciscoAttributes = req.body.request.subject[0].attribute;
   var phoneNumber = '';
+  var calledNumber = '';
   ciscoAttributes.forEach(function(attr) {
-    if ( attr.$.AttributeId == 'urn:Cisco:uc:1.0:callingnumber') {
+    if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:callingnumber') {
       phoneNumber = attr.attributevalue[0].toString();
     }
-  }); 
+    if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:callednumber') {
+      calledNumber = attr.attributevalue[0].toString();
+    }
+  });
+  if (typeof process.env.MONGO_HOST === 'string' &&
+      typeof process.env.MONGO_DB === 'string') {
+    var mongoHost = _.trim(process.env.MONGO_HOST);
+    var mongoDb = _.trim(process.env.MONGO_DB);
+
+    mongoose.Promise = global.Promise;
+
+    var connectionString = "";
+    if (typeof process.env.MONGO_USER === 'string' &&
+      typeof process.env.MONGO_PASS === 'string') {
+      var mongoUser = _.trim(process.env.MONGO_USER);
+      var mongoPass = _.trim(process.env.MONGO_PASS);
+      connectionString = 'mongodb://' + mongoUser + ':' +
+              mongoPass + '@' + mongoHost + '/' + mongoDb;
+    } else {
+      connectionString = 'mongodb://' + mongoHost + '/' + mongoDb;
+    }
+
+    var db = mongoose.createConnection(connectionString);
+
+    db.on('error', console.error.bind(console, 'connection error:'));
+    db.once('open', function() {
+      var callLogSchema = mongoose.Schema({
+        fromNumber: String,
+        toNumber: String,
+        callDate: Date
+      });
+      var CallLog = db.model('callLog', callLogSchema);
+      var callLogEntry = new CallLog({
+        fromNumber: phoneNumber,
+        toNumber: calledNumber,
+        callDate: new Date()
+      });
+      console.log("Saving entry");
+      callLogEntry.save(function (err, callLogEntry) {
+        if (err) { console.error(err); }
+        console.log("Saved entry: " + callLogEntry);
+      });
+    });
+  }
  
   res.header('Content-Type', 'application/xml');
 
