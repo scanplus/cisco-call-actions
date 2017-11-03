@@ -14,12 +14,20 @@ router.post('/', function(req, res) {
   ciscoAttributes = req.body.request.subject[0].attribute;
   var phoneNumber = '';
   var calledNumber = '';
+  var transformedcgpn = '';
+  var transformedcdpn  = '';
   ciscoAttributes.forEach(function(attr) {
     if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:callingnumber') {
       phoneNumber = attr.attributevalue[0].toString();
     }
     if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:callednumber') {
       calledNumber = attr.attributevalue[0].toString();
+    }
+    if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:transformedcgpn') {
+      transformedcgpn = attr.attributevalue[0].toString();
+    }
+    if ( attr.$.AttributeId === 'urn:Cisco:uc:1.0:transformedcdpn') {
+      transformedcdpn = attr.attributevalue[0].toString();
     }
   });
   if (typeof process.env.MONGO_HOST === 'string' &&
@@ -47,13 +55,17 @@ router.post('/', function(req, res) {
       var callLogSchema = mongoose.Schema({
         fromNumber: String,
         toNumber: String,
-        callDate: Date
+        callDate: Date,
+	transformedCgpn: String,
+	transformedCdpn: String
       });
       var CallLog = db.model('callLog', callLogSchema);
       var callLogEntry = new CallLog({
         fromNumber: phoneNumber,
         toNumber: calledNumber,
-        callDate: new Date()
+        callDate: new Date(),
+	transformedCgpn: transformedcgpn,
+	transformedCdpn, transformedcdpn
       });
       console.log("Saving entry");
       callLogEntry.save(function (err, callLogEntry) {
