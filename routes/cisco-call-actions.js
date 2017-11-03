@@ -65,7 +65,7 @@ router.post('/', function(req, res) {
         toNumber: calledNumber,
         callDate: new Date(),
 	transformedCgpn: transformedcgpn,
-	transformedCdpn, transformedcdpn
+	transformedCdpn: transformedcdpn
       });
       console.log("Saving entry");
       callLogEntry.save(function (err, callLogEntry) {
