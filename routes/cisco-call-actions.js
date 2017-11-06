@@ -56,14 +56,17 @@ router.post('/', function(req, res) {
         fromNumber: String,
         toNumber: String,
         callDate: Date,
+	tzOffset: Number,
 	transformedCgpn: String,
 	transformedCdpn: String
       });
       var CallLog = db.model('callLog', callLogSchema);
+      var now = new Date();
       var callLogEntry = new CallLog({
         fromNumber: phoneNumber,
         toNumber: calledNumber,
-        callDate: new Date(),
+        callDate: now,
+	tzOffset: now.getTimezoneOffset(),
 	transformedCgpn: transformedcgpn,
 	transformedCdpn: transformedcdpn
       });
