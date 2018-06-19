@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
     search(phoneNumber, function(err, name) {
       if (err) {
         console.log(err);
-        res.render('index', { res: 'Error: ' + err, phone: phoneNumber });
+        res.render('index', { res: err, phone: phoneNumber });
         return;
       }
       console.log('Found: ' + name);
