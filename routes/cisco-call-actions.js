@@ -37,18 +37,16 @@ router.post('/', function(req, res) {
 
     mongoose.Promise = global.Promise;
 
+    var connectionOptions = {};
     var connectionString = "";
     if (typeof process.env.MONGO_USER === 'string' &&
       typeof process.env.MONGO_PASS === 'string') {
-      var mongoUser = _.trim(process.env.MONGO_USER);
-      var mongoPass = _.trim(process.env.MONGO_PASS);
-      connectionString = 'mongodb://' + mongoUser + ':' +
-              mongoPass + '@' + mongoHost + '/' + mongoDb;
-    } else {
-      connectionString = 'mongodb://' + mongoHost + '/' + mongoDb;
+      connectionOptions.user = _.trim(process.env.MONGO_USER);
+      connectionOptions.pass = _.trim(process.env.MONGO_PASS);
     }
+    connectionString = 'mongodb://' + mongoHost + '/' + mongoDb;
 
-    var db = mongoose.createConnection(connectionString);
+    var db = mongoose.createConnection(connectionString, connectionOptions);
 
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open', function() {
