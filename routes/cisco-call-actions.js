@@ -37,7 +37,7 @@ router.post('/', function(req, res) {
 
     mongoose.Promise = global.Promise;
 
-    var connectionOptions = {};
+    var connectionOptions = { useNewUrlParser: true };
     var connectionString = "";
     if (typeof process.env.MONGO_USER === 'string' &&
       typeof process.env.MONGO_PASS === 'string') {
@@ -72,6 +72,7 @@ router.post('/', function(req, res) {
       callLogEntry.save(function (err, callLogEntry) {
         if (err) { console.error(err); }
         console.log("Saved entry: " + callLogEntry);
+        db.close();
       });
     });
   }
