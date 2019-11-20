@@ -109,7 +109,11 @@ function sendReply(direction, numbers, res) {
       return;
     }
     console.log('Found: ' + name);
-    res.render('cisco-res-change-callingname', { res: name });
+    if(direction === 'in') {
+      res.render('cisco-res-change-callingname', { res: name });
+    } else {
+      res.render('cisco-res-change-calledname', { res: name });
+    }
   });
 }
 
