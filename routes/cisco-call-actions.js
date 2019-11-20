@@ -4,13 +4,8 @@ var search = require('../backend/dominoSearch.js');
 var mongoose = require('mongoose');
 var _ = require('lodash');
 
-/* Reply to status check requests. */
-router.head('/', function(req, res) {
-  res.end();
-});
 
-router.post('/', function(req, res) {
-  
+function getCiscoAttributes(req) {
   ciscoAttributes = req.body.request.subject[0].attribute;
   var phoneNumber = '';
   var calledNumber = '';
@@ -30,6 +25,16 @@ router.post('/', function(req, res) {
       transformedcdpn = attr.attributevalue[0].toString();
     }
   });
+
+  return {
+    'phoneNumber': phoneNumber,
+    'calledNumber': calledNumber,
+    'transformedcgpn': transformedcgpn,
+    'transformedcdpn': transformedcdpn
+  }
+}
+
+function saveToDb(numbers) {
   if (typeof process.env.MONGO_HOST === 'string' &&
       typeof process.env.MONGO_DB === 'string') {
     var mongoHost = _.trim(process.env.MONGO_HOST);
@@ -61,12 +66,12 @@ router.post('/', function(req, res) {
       var CallLog = db.model('callLog', callLogSchema);
       var now = new Date();
       var callLogEntry = new CallLog({
-        fromNumber: phoneNumber,
-        toNumber: calledNumber,
+        fromNumber: numbers.phoneNumber,
+        toNumber: numbers.calledNumber,
         callDate: now,
 	tzOffset: now.getTimezoneOffset(),
-	transformedCgpn: transformedcgpn,
-	transformedCdpn: transformedcdpn
+	transformedCgpn: numbers.transformedcgpn,
+	transformedCdpn: numbers.transformedcdpn
       });
       console.log("Saving entry");
       callLogEntry.save(function (err, callLogEntry) {
@@ -76,16 +81,28 @@ router.post('/', function(req, res) {
       });
     });
   }
- 
+}
+
+function sendReply(direction, numbers, res) {
   res.header('Content-Type', 'application/xml');
 
-  if (phoneNumber.length < 5 ) {
+  toSearch = '';
+  if(direction === 'in') {
+    toSearch = numbers.phoneNumber;
+  } else if(direction === 'out') {
+    toSearch = numbers.calledNumber
+  } else {
     res.render('cisco-res-noop');
     return;
   }
 
-  console.log('Searching for ' + phoneNumber);
-  search(phoneNumber, function(err, name) {
+  if(toSearch.length < 5) {
+    res.render('cisco-res-noop');
+    return;
+  }
+  console.log('Searching for ' + toSearch);
+
+  search(toSearch, function(err, name) {
     if (err) {
       console.log(err);
       res.render('cisco-res-noop');
@@ -94,7 +111,25 @@ router.post('/', function(req, res) {
     console.log('Found: ' + name);
     res.render('cisco-res-change-callingname', { res: name });
   });
+}
 
+/* Reply to status check requests. */
+router.head('/', function(req, res) {
+  res.end();
+});
+router.head('/out', function(req, res) {
+  res.end();
+});
+
+router.post('/', function(req, res) {
+  numbers = getCiscoAttributes(req)
+  saveToDb(numbers)
+  sendReply('in', numbers, res)
+});
+router.post('/out', function(req, res) {
+  numbers = getCiscoAttributes(req)
+  saveToDb(numbers)
+  sendReply('out', numbers, res)
 });
 
 module.exports = router;
