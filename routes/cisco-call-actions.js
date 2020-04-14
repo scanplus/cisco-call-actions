@@ -59,9 +59,9 @@ function saveToDb(numbers) {
         fromNumber: String,
         toNumber: String,
         callDate: Date,
-	tzOffset: Number,
-	transformedCgpn: String,
-	transformedCdpn: String
+        tzOffset: Number,
+        transformedCgpn: String,
+        transformedCdpn: String
       });
       var CallLog = db.model('callLog', callLogSchema);
       var now = new Date();
@@ -69,9 +69,9 @@ function saveToDb(numbers) {
         fromNumber: numbers.phoneNumber,
         toNumber: numbers.calledNumber,
         callDate: now,
-	tzOffset: now.getTimezoneOffset(),
-	transformedCgpn: numbers.transformedcgpn,
-	transformedCdpn: numbers.transformedcdpn
+        tzOffset: now.getTimezoneOffset(),
+        transformedCgpn: numbers.transformedcgpn,
+        transformedCdpn: numbers.transformedcdpn
       });
       console.log("Saving entry");
       callLogEntry.save(function (err, callLogEntry) {

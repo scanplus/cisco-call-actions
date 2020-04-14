@@ -80,15 +80,15 @@ function searchForPhoneNumber(phoneNumber, callback) {
         } else if (result.AddressType == '2') {
           resultName = result.Company;
         } else {
-          var err = new Error('Unkown AddressType: ' + result.AddressType);
+          var err = new Error('Unknown AddressType: ' + result.AddressType);
           callback(err, null);
-	  return;
-	}
+          return;
+        }
         callback(null, resultName);
-	return;
+        return;
       }).catch(function (err) {
-	callback(err, null);
-	return;
+        callback(err, null);
+        return;
       });
     } else {
       var err = new Error('Too many results found');
